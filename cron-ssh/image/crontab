@@ -1,0 +1,6 @@
+# Minute
+# Hour
+# Day of Month
+# Month
+# Week day
+* * * * * /script.sh >> /dev/stdout 2>&1

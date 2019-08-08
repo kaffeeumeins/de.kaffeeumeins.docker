@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.kaffeeumeins</groupId>
+    <artifactId>h2-docker</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <version.h2database>1.4.197</version.h2database>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${version.h2database}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>toolchain</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <toolchains>
+                        <jdk>
+                            <version>11</version>
+                            <vendor>oracle</vendor>
+                        </jdk>
+                    </toolchains>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <release>11</release>
+                    <source>11</source>
+                    <target>11</target>
+                    <debug>true</debug>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.28.0</version>
+                <configuration>
+                    <dockerHost>http://localhost:2375</dockerHost>
+                    <images>
+                        <!--
+                        <image>
+                            <name>de.kaffeeumeins/h2-docker</name>
+                            <build>
+                                <from>openjdk:8-jre-alpine3.8</from>
+                                <labels>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
+                                    <version.h2database>${version.h2database}</version.h2database>
+                                </labels>
+                                <ports>
+                                    <port>8082</port>
+                                    <port>9092</port>
+                                </ports>
+                                <entryPoint>
+                                    <shell>
+                                        java $JAVA_OPTS \
+                                        -cp /h2database/h2-${version.h2database}.jar org.h2.tools.Server \
+                                        -tcp -tcpAllowOthers \
+                                        -web -webAllowOthers \
+                                        -baseDir /h2database/data
+                                    </shell>
+                                </entryPoint>
+                                <assembly>
+                                    <name>h2database</name>
+                                    <inline>
+                                        <dependencySets>
+                                            <dependencySet>
+                                                <includes>
+                                                    <include>com.h2database:h2:jar</include>
+                                                </includes>
+                                                <outputDirectory>/</outputDirectory>
+                                            </dependencySet>
+                                        </dependencySets>
+                                        <fileSets>
+                                            <fileSet>
+                                                <directory>.</directory>
+                                                <excludes>
+                                                    <exclude>*</exclude>
+                                                    <exclude>**/*</exclude>
+                                                </excludes>
+                                                <outputDirectory>data</outputDirectory>
+                                            </fileSet>
+                                        </fileSets>
+                                    </inline>
+                                </assembly>
+                            </build>
+                            <run>
+                                <wait>
+                                    <log>Web Console server running</log>
+                                </wait>
+                            </run>
+                        </image>
+                        -->
+                        <image>
+                            <name>de.kaffeeumeins/h2-test</name>
+                            <build>
+                                <from>openjdk:11.0.1-oracle</from>
+                                <entryPoint>
+                                    <shell>
+                                        java $JAVA_OPTS \
+                                        -cp /h2test/h2-docker-${project.version}.jar:/h2test/h2-${version.h2database}.jar PropertyMainApp \
+                                        test
+                                    </shell>
+                                </entryPoint>
+                                <assembly>
+                                    <name>h2test</name>
+                                    <descriptorRef>artifact-with-dependencies</descriptorRef>
+                                </assembly>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+                <!--
+                <executions>
+                    <execution>
+                        <id>docker:build</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker:start</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                            <goal>logs</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                -->
+            </plugin>
+        </plugins>
+    </build>
+</project>

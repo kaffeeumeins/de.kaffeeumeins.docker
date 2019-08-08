@@ -1,0 +1,12 @@
+# ignore my local stuff
+**/my_*
+
+# Vagrant
+.vagrant/
+
+*.rpm
+*.tgz
+*.iso
+
+# docker data folder
+*/data
